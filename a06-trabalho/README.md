@@ -6,7 +6,7 @@ Implemente as partes indicadas no projeto-base. Os dados serão criados no `main
 
 ## Etapa 1 — arquivos e tarefas
 
-Use o projeto-base específico distribuído pelo professor. A loja de referência e os exemplos da aula 07 são projetos independentes, com construtores e nomes de métodos diferentes; não copie seus arquivos para este projeto.
+A loja de referência e os exemplos da aula 07 são projetos independentes, com construtores e nomes de métodos diferentes.
 
 | Arquivo | Fornecido | Implementar |
 |---|---|---|
@@ -16,7 +16,7 @@ Use o projeto-base específico distribuído pelo professor. A loja de referênci
 | `Pedido.java` | Lista inicializada e construtor sem argumentos. | Ambas as versões de `adicionarProduto`, `calcularSubtotal`, `calcularTotal` e `contarItens`. |
 | `ModalidadeEntrega.java` | Nome, construtor protegido e `getNome()`. | Declarar a classe abstrata e a operação abstrata `calcularFrete`. |
 | Três subclasses de entrega | Arquivos e construtores com nomes e chamada a `super`. | Declarar a herança e implementar `calcularFrete` com `@Override`. |
-| `Main.java` | Dados, impressão, estrutura dos cenários e captura de erros. | Completar chamadas com `TODO` e registrar resultados. |
+| `LojaMain.java` | Dados, impressão, estrutura dos cenários e captura de erros. | Completar chamadas com `TODO` e registrar resultados. |
 
 Os trechos de lançamento de exceções são fornecidos; nos métodos da dupla, vocês escrevem as condições de validação antes de modificar objetos. Implemente nesta ordem: subtotal do item, aumento de quantidade, adição ao pedido, subtotal e contagem, modalidades e total, filtro e cenários.
 
@@ -34,7 +34,6 @@ Os trechos de lançamento de exceções são fornecidos; nos métodos da dupla, 
 | `EntregaExpressa` | Dados herdados | Aplicar tarifa fixa de entrega expressa. |
 | `RetiradaNaLoja` | Dados herdados | Aplicar frete zero. |
 | `Rastreavel` — etapa de rastreamento | Contrato de consulta | Consultar código, status e descrição do rastreamento. |
-| `StatusRastreamento` — etapa de rastreamento | `PREPARANDO`, `EM_TRANSITO`, `CONCLUIDO` | Definir os estados permitidos do transporte. |
 | `RemessaPedido` — etapa de rastreamento | Pedido, código de rastreio, status | Representar o envio da loja ao cliente. |
 | `DevolucaoPedido` — etapa de rastreamento | Remessa original, código de rastreio, motivo, status | Representar o retorno integral do cliente à loja. |
 | `RegistroRastreamento` — fornecido na etapa 2 | Transportes registrados nesta execução | Criar transportes, controlar unicidade e impedir envio para retirada na loja. |
@@ -51,41 +50,33 @@ classDiagram
     ModalidadeEntrega <|-- EntregaEconomica
     ModalidadeEntrega <|-- EntregaExpressa
     ModalidadeEntrega <|-- RetiradaNaLoja
-    Catalogo "1" o-- "0..*" Categoria
     Catalogo "1" o-- "0..*" Produto
-    Produto "0..*" --> "1" Categoria
     Pedido "1" *-- "0..*" ItemPedido
     ItemPedido "0..*" --> "1" Produto
     Pedido ..> ModalidadeEntrega : usa no cálculo
     class Rastreavel {
         <<interface>>
         +getCodigoRastreio() String
-        +getStatus() StatusRastreamento
+        +getStatusRastreamento() String
         +consultarRastreamento() String
-    }
-    class StatusRastreamento {
-        <<enumeration>>
-        PREPARANDO
-        EM_TRANSITO
-        CONCLUIDO
     }
     class RemessaPedido {
         -String codigoRastreio
-        -StatusRastreamento status
-        +atualizarStatus(StatusRastreamento novoStatus) void
+        -String status
+        +atualizarStatus(String statusRastreamento) void
     }
     class DevolucaoPedido {
         -String codigoRastreio
         -String motivo
-        -StatusRastreamento status
-        +atualizarStatus(StatusRastreamento novoStatus) void
+        -String status
+        +atualizarStatus(String statusRastreamento) void
     }
     Rastreavel <|.. RemessaPedido
     Rastreavel <|.. DevolucaoPedido
     RemessaPedido "0..1" --> "1" Pedido : envia
     DevolucaoPedido "0..1" --> "1" RemessaPedido : devolve
-    RemessaPedido --> StatusRastreamento
-    DevolucaoPedido --> StatusRastreamento
+    RemessaPedido --> String
+    DevolucaoPedido --> String
     RegistroRastreamento ..> RemessaPedido : cria
     RegistroRastreamento ..> DevolucaoPedido : cria
     RegistroRastreamento ..> ModalidadeEntrega : verifica na criação
@@ -219,8 +210,8 @@ Cada cenário de pedido começa com um novo pedido, salvo indicação contrária
 | Quatro unidades de mouse | Subtotal R$ 200,00; econômica total R$ 200,00. |
 | Subtotal de R$ 199,99, com produto específico para teste | Frete econômico R$ 10,00; total R$ 209,99. |
 | Adicionar mouse sem quantidade e depois com quantidade 2 | Uma linha com três unidades; subtotal R$ 150,00. |
-| Adicionar quantidade zero ou negativa a um pedido com mouse | IllegalArgumentException; quantidade e subtotal anteriores preservados. |
-| Adicionar produto nulo | IllegalArgumentException; pedido preservado. |
+| Adicionar quantidade zero ou negativa a um pedido com mouse | quantidade e subtotal anteriores preservados. |
+| Adicionar produto nulo | pedido preservado. |
 | Pedido vazio | Subtotal zero; calcularTotal lança IllegalStateException. |
 | Pedido não vazio com modalidade nula | calcularTotal lança IllegalArgumentException. |
 | Filtrar Periféricos no catálogo do exemplo | Teclado e mouse; caderno não aparece. |
@@ -235,7 +226,6 @@ Acrescente cenários para filtro com categoria nula e aumentarQuantidade com inc
 - Registro dos cenários de verificação em um pequeno `README.md`.
 - Respostas breves: por que categoria é classe? Onde há composição? Qual a diferença entre sobrecarga e sobrescrita neste programa? O que precisa mudar para acrescentar uma modalidade de entrega?
 
-
 Avaliação da etapa 1: item e pedido (3 pontos), herança e chamada polimórfica (3), sobrecarga e filtro (1,5), validações implementadas e cenários (1,5), explicação das relações (1). Não pontuar partes fornecidas.
 
 ## Etapa 2 — interfaces: rastreamento de remessas e devoluções
@@ -244,7 +234,6 @@ Avaliação da etapa 1: item e pedido (3 pontos), herança e chamada polimórfic
 
 | Arquivo | Fornecido | Implementar |
 |---|---|---|
-| `StatusRastreamento.java` | Enum completo. | Nenhuma parte. |
 | `RemessaPedido.java`, `DevolucaoPedido.java` | Atributos, construtores, getters das associações e motivo, validações e atualização de status. | Declarar `implements Rastreavel` e implementar os três métodos públicos da interface com `@Override`. |
 | `Rastreavel.java` | Arquivo indicado para criação. | Interface e três métodos especificados abaixo. |
 | `RegistroRastreamento.java` | Classe completa com criação e controle dos transportes. | Nenhuma parte. |
@@ -265,12 +254,8 @@ O rastreamento é uma simulação em memória, atualizada no `Main`, sem API de 
 ```java
 public interface Rastreavel {
     String getCodigoRastreio();
-    StatusRastreamento getStatus();
+    String getStatus();
     String consultarRastreamento();
-}
-
-public enum StatusRastreamento {
-    PREPARANDO, EM_TRANSITO, CONCLUIDO
 }
 ```
 
@@ -284,14 +269,14 @@ Contratos das operações fornecidas (notação de assinatura; os corpos já est
 // RemessaPedido implements Rastreavel
 public RemessaPedido(String codigoRastreio, Pedido pedido);
 public Pedido getPedido();
-public void atualizarStatus(StatusRastreamento novoStatus);
+public void atualizarStatus(String statusRastreamento);
 
 // DevolucaoPedido implements Rastreavel
 public DevolucaoPedido(String codigoRastreio,
                        RemessaPedido remessaOriginal, String motivo);
 public RemessaPedido getRemessaOriginal();
 public String getMotivo();
-public void atualizarStatus(StatusRastreamento novoStatus);
+public void atualizarStatus(String statusRastreamento);
 ```
 
 Os atributos são privados. Código, pedido, remessa original e motivo não mudam depois da construção; somente o status é atualizado. A devolução identifica o pedido por `remessaOriginal.getPedido()`, sem armazenar uma segunda referência independente. O enum é adequado porque os estados são um conjunto fechado definido pelas regras.
@@ -300,19 +285,17 @@ Os atributos são privados. Código, pedido, remessa original e motivo não muda
 
 | Regra | Descrição | Responsável |
 |---|---|---|
-| RT01 | Remover espaços nas extremidades com trim() antes de armazenar o código; rejeitar nulo ou resultado vazio. Unicidade compara o texto normalizado, distinguindo maiúsculas e minúsculas. | Construtores dos transportes — fornecidos |
+| RT01 | Remover espaços nas extremidades com trim() antes de armazenar o código de produto etc.; rejeitar nulo ou resultado vazio. Unicidade compara o texto normalizado, distinguindo maiúsculas e minúsculas. | Construtores dos transportes — fornecidos |
 | RT02 | Códigos de rastreio são únicos entre remessas e devoluções. Cada pedido tem no máximo uma remessa e cada remessa no máximo uma devolução integral. | RegistroRastreamento.criarRemessa e criarDevolucao — fornecidos |
 | RT03 | Criar remessa exige pedido não nulo e com pelo menos um item. | Construtor de RemessaPedido — fornecido |
-| RT04 | Ambos os transportes começam em `PREPARANDO`. Só são aceitas as transições `PREPARANDO → EM_TRANSITO → CONCLUIDO`. Repetir o estado atual, pular uma etapa ou retroceder é rejeitado. | Construtores e atualizarStatus das duas classes — fornecidos |
+| RT04 | Ambos os transportes começam em `preparando`. Só são aceitas as transições `preparando → em_transito → concluído`. Repetir o estado atual, pular uma etapa ou retroceder é rejeitado. | Construtores e atualizarStatus das duas classes — fornecidos |
 | RT05 | Atualização com status nulo é rejeitada. Toda tentativa inválida preserva o status anterior. | atualizarStatus das duas classes — fornecido |
-| RT06 | Criar devolução exige remessa original não nula e em `CONCLUIDO`, além de motivo não nulo e não vazio após `trim()`. O motivo é armazenado sem espaços nas extremidades. | Construtor de DevolucaoPedido — fornecido |
+| RT06 | Criar devolução exige remessa original não nula e em `concluido`, além de motivo não nulo e não vazio após `trim()`. O motivo é armazenado sem espaços nas extremidades. | Construtor de DevolucaoPedido — fornecido |
 | RT07 | Concluir a remessa significa entregar ao cliente; concluir a devolução significa receber o retorno na loja. A devolução não muda o status da remessa original. | consultarRastreamento — implementar; atualizarStatus — fornecido |
 | RT08 | Consultas de rastreamento não modificam status, quantidades, preços ou totais. | Três consultas de Rastreavel — implementar |
 | RT09 | Retirada na loja não gera remessa ou devolução rastreável nesta simulação. Calcular um total, por si só, não cria transporte. | RegistroRastreamento.criarRemessa — fornecido |
 | RT10 | Depois de criada a remessa, o exemplo não altera os itens ou preços do pedido. A devolução abrange todos os itens desse pedido. Bloqueio automático de alterações e cópia do conteúdo enviado ficam para uma evolução. | Fluxo fornecido no `Main` |
 | RT11 | getCodigoRastreio retorna o código armazenado normalizado; getStatus retorna o enum atual, não uma descrição. | getCodigoRastreio e getStatus das duas classes — implementar |
-
-Use `IllegalArgumentException` para parâmetros inválidos e `IllegalStateException` para pedido vazio, remessa ainda não entregue ou transição proibida. Os construtores e as transições já incluem os lançamentos; o Main fornece as capturas dos erros esperados. O registro verifica unicidade; os construtores verificam somente os dados recebidos. Não implementar essas verificações nesta etapa.
 
 ### Criação pelo registro fornecido
 
@@ -337,12 +320,12 @@ Após criar um `pedido` válido:
 RegistroRastreamento registro = new RegistroRastreamento();
 RemessaPedido remessa = registro.criarRemessa(
     "ENV-001", pedido, new EntregaEconomica());
-remessa.atualizarStatus(StatusRastreamento.EM_TRANSITO);
-remessa.atualizarStatus(StatusRastreamento.CONCLUIDO);
+remessa.atualizarStatus("em trânsito");
+remessa.atualizarStatus("concluido");
 
 DevolucaoPedido devolucao =
     registro.criarDevolucao("DEV-001", remessa, "Produto diferente do solicitado");
-devolucao.atualizarStatus(StatusRastreamento.EM_TRANSITO);
+devolucao.atualizarStatus("em trânsito");
 
 Rastreavel[] transportes = { remessa, devolucao };
 for (Rastreavel transporte : transportes) {
@@ -368,27 +351,27 @@ O laço usa apenas métodos de `Rastreavel`. Não usar `instanceof`, conversão 
 
 | Cenário | Resultado esperado |
 |---|---|
-| Criar remessa válida | `PREPARANDO`; descrição "Remessa em preparação". |
+| Criar remessa válida | `preparando`; descrição "Remessa em preparação". |
 | Avançar remessa pelas duas etapas | `CONCLUIDO`; descrição "Remessa entregue ao cliente". |
-| Criar devolução dessa remessa | `PREPARANDO`; descrição "Devolução em preparação". |
+| Criar devolução dessa remessa | `preparando`; descrição "Devolução em preparação". |
 | Avançar devolução pelas duas etapas | `CONCLUIDO`; descrição "Devolução recebida pela loja"; remessa continua concluída. |
 | Consultar os dois objetos pelo array de `Rastreavel` | Descrição correspondente a cada objeto, sem selecionar classes no laço. |
-| Criar remessa com pedido nulo | IllegalArgumentException; objeto não registrado. |
-| Criar remessa com pedido vazio | IllegalStateException; objeto não registrado. |
-| Criar transporte com código nulo ou em branco | IllegalArgumentException; objeto não registrado. |
-| Criar devolução com remessa nula, externa ao registro ou motivo nulo/em branco | IllegalArgumentException; objeto não registrado. |
-| Criar devolução com remessa ainda não concluída | IllegalStateException; objeto não registrado. |
-| Pular de PREPARANDO para CONCLUIDO, retroceder ou repetir estado | IllegalStateException; status anterior preservado. |
-| Atualizar com status nulo | IllegalArgumentException; status anterior preservado. |
-| Criar código repetido, segunda remessa do pedido ou segunda devolução da remessa | RegistroRastreamento lança IllegalStateException; registros preservados. |
-| Criar remessa com modalidade nula | IllegalArgumentException; não registrada. |
-| Criar remessa com RetiradaNaLoja | IllegalStateException; não registrada. |
+| Criar remessa com pedido nulo | objeto não registrado. |
+| Criar remessa com pedido vazio | objeto não registrado. |
+| Criar transporte com código nulo ou em branco | objeto não registrado. |
+| Criar devolução com remessa nula, externa ao registro ou motivo nulo/em branco | objeto não registrado. |
+| Criar devolução com remessa ainda não concluída | objeto não registrado. |
+| Pular de preparando para CONCLUIDO, retroceder ou repetir estado | status anterior preservado. |
+| Atualizar com status nulo | status anterior preservado. |
+| Criar código repetido, segunda remessa do pedido ou segunda devolução da remessa | RegistroRastreamento lança registros preservados. |
+| Criar remessa com modalidade nula | não registrada. |
+| Criar remessa com RetiradaNaLoja | não registrada. |
 | Criar código com espaços nas extremidades | Código retornado sem espaços; repetição desse código normalizado é rejeitada. |
 | Consultar várias vezes e concluir devolução | Subtotal do pedido e status da remessa original preservados. |
 
 ### Conferência das tarefas desta etapa
 
-O projeto-base fornece `StatusRastreamento`, os atributos, os construtores, as validações e `atualizarStatus` das duas classes, além de RegistroRastreamento completo e dos cenários de erro no Main. Implemente:
+O projeto-base fornece os atributos, os construtores, as validações e `atualizarStatus` das duas classes, além de RegistroRastreamento completo e dos cenários de erro no Main. Implemente:
 
 1. A interface `Rastreavel`, com os três métodos especificados.
 2. Os três métodos da interface em `RemessaPedido` e `DevolucaoPedido`, usando `@Override`.
@@ -399,7 +382,7 @@ As transições prontas devem ser utilizadas nos exemplos; sua implementação n
 
 ### Entrega da etapa de rastreamento
 
-Acrescente ao projeto `Rastreavel.java`, `StatusRastreamento.java`, `RemessaPedido.java` e `DevolucaoPedido.java`, com o `Main` demonstrando os dois transportes e o `README.md` registrando os cenários. Preserve a demonstração dos cálculos da etapa anterior.
+Acrescente ao projeto `Rastreavel.java`, `RemessaPedido.java` e `DevolucaoPedido.java`, com o `Main` demonstrando os dois transportes e o `README.md` registrando os cenários. Preserve a demonstração dos cálculos da etapa anterior.
 
 Responda brevemente:
 
@@ -417,7 +400,7 @@ Use uma linha por cenário no README. Preencha o obtido após executar, inclusiv
 | Etapa / regra / método | Entrada ou operação | Esperado | Obtido |
 |---|---|---|---|
 | 1 / RN08 / ItemPedido.calcularSubtotal | Mouse de R$ 50,00; quantidade 2 | R$ 100,00 | Preencher após executar |
-| 1 / RN06 / Pedido.adicionarProduto | Quantidade zero em pedido de R$ 50,00 | IllegalArgumentException; subtotal preservado | Preencher após executar |
+| 1 / RN06 / Pedido.adicionarProduto | Quantidade zero em pedido de R$ 50,00 | subtotal preservado | Preencher após executar |
 | 2 / RT07 / consultarRastreamento | Remessa concluída | Remessa entregue ao cliente | Preencher após executar |
 
 Use os comandos de compilação e execução do README do projeto-base entregue pelo professor.

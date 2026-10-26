@@ -6,7 +6,7 @@ public class EntregaEconomica extends ModalidadeEntrega {
         super("EntregaEconomica");
     }
 
-    public double calcularFrete(double subtotal){
+    public double calcularFrete(double subtotal) {
         if (subtotal < 200.0) {
             return 10.00;
         }
